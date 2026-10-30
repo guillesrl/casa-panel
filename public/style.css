@@ -40,3 +40,6 @@
   .loading{padding:22px 0}
   .footer{padding-top:8px;font-size:8px}
 }
+
+.grid>.news-card{grid-row:span 2}
+@media(max-width:740px){.grid>.news-card{grid-row:auto}}
