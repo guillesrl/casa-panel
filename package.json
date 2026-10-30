@@ -1,0 +1,26 @@
+{
+  "name": "casa-panel",
+  "version": "1.0.0",
+  "description": "Panel dom\u00e9stico para tablet: tiempo, actualidad, Google Calendar y adaptador Alexa",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "node --use-env-proxy --env-file-if-exists=.env server.mjs",
+    "start": "node --use-env-proxy --env-file-if-exists=.env server.mjs",
+    "test": "node --test",
+    "check": "node --check server.mjs && node --check public/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "fast-xml-parser": "^5.11.2",
+    "node-ical": "^0.27.3"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
