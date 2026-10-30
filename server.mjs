@@ -78,7 +78,26 @@ const weather=cached(async()=>{
   if(typeof data.current?.temperature_2m!=='number'||!data.daily||!data.hourly) throw new Error('Invalid weather');
   return data;
 });
-const news=cached(async()=>parseNews(await fetchText(env.NEWS_RSS_URL||'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada')));
+const defaultNewsFeeds=[
+  env.NEWS_RSS_URL||'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada',
+  'https://feeds.bbci.co.uk/mundo/rss.xml',
+  'https://es.euronews.com/rss?format=mrss&level=theme&name=news'
+];
+async function loadNews(){
+  const feeds=(env.NEWS_RSS_URLS?env.NEWS_RSS_URLS.split(/[\n,]/):defaultNewsFeeds).map(url=>url.trim()).filter(Boolean);
+  const results=await Promise.allSettled(feeds.map(async url=>parseNews(await fetchText(url))));
+  const articles=results.flatMap(result=>result.status==='fulfilled'?result.value:[]);
+  const seen=new Set();
+  const unique=articles.filter(article=>{
+    const key=article.title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    if(!key||seen.has(key))return false;
+    seen.add(key);return true;
+  });
+  unique.sort((a,b)=>(Date.parse(b.publishedAt)||0)-(Date.parse(a.publishedAt)||0));
+  if(!unique.length)throw new Error('All news feeds unavailable');
+  return unique.slice(0,24);
+}
+const news=cached(loadNews);
 const calendar=cached(async()=>parseCalendar(await fetchText(env.GOOGLE_CALENDAR_ICS_URL)),!!env.GOOGLE_CALENDAR_ICS_URL);
 const shopping=cached(async()=>parseShopping(JSON.parse(await fetchText(env.ALEXA_BRIDGE_URL,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ }))),!!env.ALEXA_BRIDGE_URL);
 function equal(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}

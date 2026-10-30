@@ -1,10 +1,10 @@
 # Casa · Panel para tablet
 
-Panel doméstico ligero en español, inspirado en pantallas de hogar. Cuatro tarjetas: tiempo, actualidad general, Google Calendar y lista de compra de Alexa. HTML/CSS/JavaScript sin framework en el navegador; servidor Node.js 24 con dos dependencias para RSS e iCalendar. No necesita base de datos ni compilación.
+Panel doméstico ligero en español, inspirado en pantallas de hogar. Tres tarjetas visibles: tiempo, actualidad general de varias fuentes y Google Calendar. La lista de compra queda oculta hasta conectar Alexa. HTML/CSS/JavaScript sin framework en el navegador; servidor Node.js 24 con dos dependencias para RSS e iCalendar. No necesita base de datos ni compilación.
 
 ## Estado real de la entrega
 
-- Implementados: interfaz adaptable, reloj Europe/Andorra, consulta meteorológica Open-Meteo, lector RSS (El País por defecto), lector iCal de Google Calendar y lector de un adaptador JSON externo para la lista.
+- Implementados: interfaz adaptable, reloj Europe/Andorra, consulta meteorológica Open-Meteo, lector RSS de El País, BBC Mundo y Euronews por defecto, lector iCal de Google Calendar y lector de un adaptador JSON externo para la lista.
 - Datos consultados cada 15 minutos mientras la página está visible. Al volver de suspensión se actualiza si venció el intervalo. El reloj se actualiza cada segundo. Botón de actualización manual; el servidor limita nuevas consultas a una cada 30 segundos por fuente.
 - Cada fuente falla de forma independiente. Se conservan los últimos datos durante la sesión/proceso con aviso de antigüedad; no hay caché persistente tras reiniciar servidor o cerrar página.
 - Modo claro, pantalla completa, solicitud de Screen Wake Lock y vista de ejemplo explícita. Datos ficticios únicamente al activar «Vista de ejemplo» en Ajustes; no se activa por defecto ni se guarda esa elección.
@@ -35,7 +35,8 @@ npm test
 | `TZ` | `Europe/Andorra` |
 | `WEATHER_CITY` | `Andorra la Vella` |
 | `WEATHER_LAT`, `WEATHER_LON` | `42.5063`, `1.5218` |
-| `NEWS_RSS_URL` | RSS de portada de El País; configurable por otro RSS/Atom HTTPS |
+| `NEWS_RSS_URL` | Feed principal (El País por defecto); se combina con BBC Mundo y Euronews |
+| `NEWS_RSS_URLS` | Opcional: lista de RSS/Atom HTTPS separados por comas o saltos de línea; reemplaza las fuentes predeterminadas |
 | `GOOGLE_CALENDAR_ICS_URL` | Dirección secreta iCal; dejar vacía hasta conectar |
 | `DASHBOARD_USER` | Obligatorio en producción |
 | `DASHBOARD_PASSWORD` | Contraseña única y larga; obligatorio en producción |
