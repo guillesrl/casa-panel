@@ -122,9 +122,9 @@
   .tools{flex-shrink:0}
   .footer{justify-content:flex-end}
   .news-list{min-height:0;overflow:auto}
-  .news-copy h3{display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:initial;text-overflow:clip;font-size:clamp(22px,2vw,28px);line-height:1.25}
+  .news-copy h3{display:block;overflow:visible;-webkit-line-clamp:unset;-webkit-box-orient:initial;text-overflow:clip;font-size:clamp(20px,1.85vw,26px);line-height:1.25}
   .news-item{align-items:flex-start;padding:10px 0}
-  .news-copy p{font-size:clamp(12px,.95vw,15px);margin-top:5px}
+  .news-copy p{font-size:clamp(11px,.85vw,14px);margin-top:5px}
 }
 @media (max-width:740px){
   .welcome{align-items:center}
