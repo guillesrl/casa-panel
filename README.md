@@ -112,6 +112,12 @@ git push -u origin main
 
 No utiliza GitHub Pages: el servidor es necesario para ocultar credenciales y consultar RSS/calendario sin problemas de CORS.
 
+### Despliegue automático
+
+Los pushes a `main` activan el servicio `paginas_web/casa-panel` mediante un webhook de GitHub. El callback debe usar el dominio HTTPS público de EasyPanel (`panel.guillers.es`), formato `application/json` y verificación TLS activada. No debe apuntar a la IP por el puerto 3000 cuando el acceso directo por IP está deshabilitado.
+
+La URL completa del webhook contiene un token: mantenerla únicamente en la configuración de GitHub/EasyPanel, nunca en el repositorio ni en logs. Para diagnosticar fallos, comprobar el estado HTTP de las entregas de GitHub y la acción de despliegue correspondiente en EasyPanel; la opción de auto-deploy activada por sí sola no demuestra que el webhook funcione. El lector Alexa se despliega por separado.
+
 ## Tablet
 
 Diseñado para tablet en horizontal, incluida la resolución 2000×1200: clima, agenda y Alexa en tres columnas superiores, noticias a todo el ancho debajo. En pantallas estrechas pasa a una columna. Ajustes → Pantalla encendida solicita Wake Lock, disponible según navegador y HTTPS; si el sistema lo impide, ajustar el bloqueo de pantalla de la tablet. Pantalla completa necesita una pulsación del usuario y puede no estar disponible en Safari/iPad; se puede usar «Añadir a pantalla de inicio». No es una aplicación offline.
