@@ -54,7 +54,13 @@ async function fetchText(url,headers={}) {
   const internalHTTP=parsed.protocol==='http:'&&env.ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP==='true'&&parsed.hostname==='alexa-shopping-reader';
   if(parsed.protocol!=='https:'&&!internalHTTP) throw new Error('HTTPS required');
   const response=await fetch(url,{headers,signal:AbortSignal.timeout(12000)});
-  if(!response.ok) throw new Error('Upstream unavailable');
+  if(!response.ok) {
+    let detail={};
+    try {detail=await response.json();} catch {}
+    const error=new Error('Upstream unavailable');
+    error.status=detail.status||`http_${response.status}`;
+    throw error;
+  }
   let size=0; const chunks=[];
   for await(const chunk of response.body) {size+=chunk.length;if(size>5_000_000) throw new Error('Response too large');chunks.push(chunk);}
   return Buffer.concat(chunks).toString('utf8');
@@ -78,7 +84,7 @@ export function cached(loader, enabled=true) {
     pending=(async()=>{try {
       const data=await loader();
       last={status:'ok',data,updatedAt:new Date().toISOString()};
-    } catch {last={status:last?.data?'stale':'error',data:last?.data??null,updatedAt:last?.updatedAt??null};}
+    } catch(error) {last={status:error?.status==='login_required'?'login_required':last?.data?'stale':'error',data:last?.data??null,updatedAt:last?.updatedAt??null};}
     checked=Date.now();return last;})();
     try{return await pending;}finally{pending=null;}
   };
