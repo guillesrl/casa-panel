@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 REQUEST=/home/ubuntu/.local/share/alexa-shopping-reader/login-request
-LOCK=/run/alexa-shopping-reader-login.lock
+LOCK=/home/ubuntu/.local/share/alexa-shopping-reader/login.lock
 while true; do
   if [[ -f "$REQUEST" ]]; then
     rm -f "$REQUEST"
