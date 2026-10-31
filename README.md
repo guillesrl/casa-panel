@@ -116,6 +116,8 @@ No utiliza GitHub Pages: el servidor es necesario para ocultar credenciales y co
 
 Los pushes a `main` activan el servicio `paginas_web/casa-panel` mediante un webhook de GitHub. El callback debe usar el dominio HTTPS público de EasyPanel (`panel.guillers.es`), formato `application/json` y verificación TLS activada. No debe apuntar a la IP por el puerto 3000 cuando el acceso directo por IP está deshabilitado.
 
+El callback incluye `forceRebuild=true` para descargar y construir la fuente en cada push, incluso si la consulta de commits de GitHub aún devuelve una referencia anterior por caché. Esta opción evita que EasyPanel omita la construcción y puede aumentar el tiempo de build.
+
 La URL completa del webhook contiene un token: mantenerla únicamente en la configuración de GitHub/EasyPanel, nunca en el repositorio ni en logs. Para diagnosticar fallos, comprobar el estado HTTP de las entregas de GitHub y la acción de despliegue correspondiente en EasyPanel; la opción de auto-deploy activada por sí sola no demuestra que el webhook funcione. El lector Alexa se despliega por separado.
 
 ## Tablet
