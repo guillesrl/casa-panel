@@ -38,7 +38,7 @@ El VNC escucha solo en localhost del servidor; no se publica a Internet. El perf
 
 ## Adaptador HTTP para Casa
 
-`bridge_server.py` expone únicamente `GET /` con el contrato que consume `casa-panel`. En producción corre como servicio privado Docker `alexa-shopping-reader` en `0.0.0.0:8765`, exige `ALEXA_BRIDGE_TOKEN` mediante archivo secreto y no registra la lista ni cabeceras. No se publica el puerto 8765 directamente en Internet.
+`bridge_server.py` expone `GET /` para la lista y `POST /login/start` para solicitar el inicio controlado del navegador de login. Ambos endpoints exigen `ALEXA_BRIDGE_TOKEN`; la solicitud solo crea un marcador en el volumen persistente. Un watcher del host consume ese marcador con bloqueo y ejecuta `start-login.sh`; no se ejecutan comandos enviados desde el navegador. En producción corre como servicio privado Docker `alexa-shopping-reader` en `0.0.0.0:8765`, exige `ALEXA_BRIDGE_TOKEN` mediante archivo secreto y no registra la lista ni cabeceras. No se publica el puerto 8765 directamente en Internet.
 
 Variables del adaptador:
 
