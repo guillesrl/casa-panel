@@ -188,3 +188,8 @@ html,body{max-width:100%;overflow-x:clip}
 @media (min-width:741px) and (max-height:520px){
   .hourly{display:none}
 }
+
+/* La fecha actual ya está en la cabecera; la agenda usa todo el espacio para eventos. */
+.calendar-body{align-items:stretch;padding:12px 0}
+.calendar-body .events{width:100%;max-height:100%;overflow:auto}
+.calendar-body .event-time{font-size:11px;line-height:1.35;color:var(--muted);margin-bottom:6px}
