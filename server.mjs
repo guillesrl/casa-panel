@@ -50,7 +50,9 @@ export function parseShopping(data) {
   }),updatedAt:new Date(updatedAt).toISOString()};
 }
 async function fetchText(url,headers={}) {
-  if(new URL(url).protocol!=='https:') throw new Error('HTTPS required');
+  const parsed=new URL(url);
+  const internalHTTP=parsed.protocol==='http:'&&env.ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP==='true'&&parsed.hostname==='alexa-shopping-reader';
+  if(parsed.protocol!=='https:'&&!internalHTTP) throw new Error('HTTPS required');
   const response=await fetch(url,{headers,signal:AbortSignal.timeout(12000)});
   if(!response.ok) throw new Error('Upstream unavailable');
   let size=0; const chunks=[];

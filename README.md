@@ -40,8 +40,9 @@ npm test
 | `GOOGLE_CALENDAR_ICS_URL` | Dirección secreta iCal; dejar vacía hasta conectar |
 | `DASHBOARD_USER` | Obligatorio en producción |
 | `DASHBOARD_PASSWORD` | Contraseña única y larga; obligatorio en producción |
-| `ALEXA_BRIDGE_URL` | Endpoint HTTPS del adaptador externo, aún pendiente |
-| `ALEXA_BRIDGE_TOKEN` | Bearer token opcional del adaptador |
+| `ALEXA_BRIDGE_URL` | Endpoint HTTPS del adaptador externo o `http://alexa-shopping-reader:8765/` dentro de la red privada de Docker |
+| `ALEXA_BRIDGE_TOKEN` | Bearer token del adaptador |
+| `ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP` | `true` solo para el hostname exacto `alexa-shopping-reader` en la red privada; por defecto `false` |
 
 Las URLs y credenciales se usan solo en el servidor. El navegador recibe los datos normalizados, no los secretos. `.env` está excluido de Git y Docker. La aplicación solo admite lectura; no expone un editor público de configuración.
 
