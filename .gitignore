@@ -4,3 +4,11 @@ node_modules/
 !.env.example
 .DS_Store
 *.log
+
+# Servicios del monorepo
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/profile/
+**/state/
+**/*.log

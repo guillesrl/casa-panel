@@ -13,6 +13,16 @@ Panel doméstico ligero en español, inspirado en pantallas de hogar. Cuatro tar
 - Casa recibe la lista por `GET ALEXA_BRIDGE_URL`, muestra los artículos pendientes/completados y avisa si los datos superan 30 minutos. La tarjeta de Alexa está visible en la columna derecha, debajo de noticias.
 - Repositorio: https://github.com/guillesrl/casa-panel. El servicio está desplegado en EasyPanel/Docker Swarm y su código se publica desde la rama `main`.
 
+## Estructura del monorepo
+
+El repositorio contiene los dos servicios de la integración:
+
+- `casa-panel` en la raíz: panel web Node.js desplegado en EasyPanel usando el `Dockerfile` raíz.
+- `alexa-shopping-reader/`: lector Playwright, adaptador HTTP y herramientas de login VNC.
+- El lector se despliega como servicio privado independiente usando `alexa-shopping-reader/Dockerfile`.
+
+Ambos servicios comparten el contrato JSON, pero se despliegan por separado. El perfil de Chromium, cookies, `.venv`, estados, tokens y archivos `.env` están excluidos de Git.
+
 ## Ejecutar
 
 ```bash
