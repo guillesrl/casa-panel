@@ -7,7 +7,7 @@
   .grid>.calendar-card{grid-column:2;grid-row:1}
   .grid>.shopping-card{grid-column:3;grid-row:1}
   .grid>.news-card{grid-column:1 / -1;grid-row:2}
-  .news-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px;overflow:auto}
+  .news-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 24px;overflow:auto}
 }
 @media (max-width:740px){
   .grid>.weather-card,.grid>.calendar-card,.grid>.shopping-card,.grid>.news-card{grid-column:auto;grid-row:auto}
@@ -178,7 +178,7 @@ html,body{max-width:100%;overflow-x:clip}
   .card-head{gap:6px}
   .card h2{flex-shrink:0;white-space:nowrap;gap:7px;font-size:16px}
   .card .tag{font-size:8px;letter-spacing:.5px}
-  .news-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 12px}
+  .news-list{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 12px}
   .news-item{gap:9px;padding:5px 0}
   .news-copy h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:clamp(16px,2vw,19px);line-height:1.18}
   .news-copy p{font-size:11px;letter-spacing:.2px;margin-top:3px}
