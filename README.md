@@ -1,6 +1,6 @@
 # Casa · Panel para tablet
 
-Panel doméstico ligero en español, inspirado en pantallas de hogar. Tres tarjetas visibles: tiempo, actualidad general de varias fuentes y Google Calendar. La lista de compra queda oculta hasta conectar Alexa. HTML/CSS/JavaScript sin framework en el navegador; servidor Node.js 24 con dos dependencias para RSS e iCalendar. No necesita base de datos ni compilación.
+Panel doméstico ligero en español, inspirado en pantallas de hogar. Cuatro tarjetas visibles: tiempo, actualidad general, Google Calendar y lista de compras de Alexa. HTML/CSS/JavaScript sin framework en el navegador; servidor Node.js 24 con dos dependencias para RSS e iCalendar. No necesita base de datos ni compilación.
 
 ## Estado real de la entrega
 
@@ -9,8 +9,9 @@ Panel doméstico ligero en español, inspirado en pantallas de hogar. Tres tarje
 - Cada fuente falla de forma independiente. Se conservan los últimos datos durante la sesión/proceso con aviso de antigüedad; no hay caché persistente tras reiniciar servidor o cerrar página.
 - Modo claro, pantalla completa, solicitud de Screen Wake Lock y vista de ejemplo explícita. Datos ficticios únicamente al activar «Vista de ejemplo» en Ajustes; no se activa por defecto ni se guarda esa elección.
 - Google Calendar necesita el enlace secreto iCal del usuario. Lectura, sin crear ni editar eventos. Incluye recurrencias, excepciones, eventos de día completo y cambios de zona horaria.
-- **Alexa NO está conectada.** Amazon retiró List Management REST API el 1 de julio de 2024. Este repositorio define una entrada para un adaptador externo, pero no incluye un sistema para extraer la lista de la cuenta Amazon. No basta con pegar una contraseña Amazon. La integración concreta se debe elegir y probar por separado.
-- Repositorio: https://github.com/guillesrl/casa-panel. Despliegue en EasyPanel pendiente; se incluye Dockerfile.
+- Amazon retiró List Management REST API el 1 de julio de 2024. La integración actual usa el servicio externo `alexa-shopping-reader`, que lee Amazon España mediante Playwright y un perfil persistente autenticado manualmente. El lector es estrictamente de solo lectura.
+- Casa recibe la lista por `GET ALEXA_BRIDGE_URL`, muestra los artículos pendientes/completados y avisa si los datos superan 30 minutos. La tarjeta de Alexa está visible en la columna derecha, debajo de noticias.
+- Repositorio: https://github.com/guillesrl/casa-panel. El servicio está desplegado en EasyPanel/Docker Swarm y su código se publica desde la rama `main`.
 
 ## Ejecutar
 
@@ -52,12 +53,12 @@ En Google Calendar, abre Configuración, selecciona el calendario, entra en «In
 
 La ventana es de siete días y hasta 30 eventos. La velocidad con la que Google actualice su feed iCal puede añadir retraso respecto al intervalo del panel. Las fechas de día completo conservan su fecha de calendario; hora de eventos y reloj se muestran en `TZ`.
 
-### Adaptador Alexa pendiente
+### Integración de Alexa
 
 Fuente oficial sobre la retirada de la API:
 https://developer.amazon.com/en-US/docs/alexa/ask-overviews/deprecated-features.html#shopping-lists
 
-Un adaptador compatible debe responder a `GET ALEXA_BRIDGE_URL`, con autorización `Bearer` si se configura token, usando este contrato:
+El servicio `alexa-shopping-reader` responde a `GET ALEXA_BRIDGE_URL`, con autorización `Bearer`, usando este contrato:
 
 ```json
 {
@@ -69,14 +70,23 @@ Un adaptador compatible debe responder a `GET ALEXA_BRIDGE_URL`, con autorizaci�
 }
 ```
 
-`updatedAt` debe indicar cuándo se obtuvo la lista de su origen, no cuándo se abrió este endpoint. Tras 30 minutos sin datos nuevos se muestra un aviso. `completed` debe ser booleano. Máximo 300 artículos. La tablet muestra la lista en modo consulta; no envía cambios a Alexa. n8n podría servir este contrato **solo si cuenta con una fuente compatible ya conectada**; n8n por sí solo no restablece la API retirada.
+`updatedAt` indica cuándo se obtuvo la lista de Amazon. Tras 30 minutos sin datos nuevos se muestra un aviso. `completed` debe ser booleano. Máximo 300 artículos. La tablet muestra la lista en modo consulta; no envía cambios a Alexa.
+
+El lector usa:
+
+- Amazon España: `https://www.amazon.es/gp/alexa-shopping-list`.
+- Perfil persistente fuera del repositorio: `/home/ubuntu/.local/share/alexa-shopping-reader/profile`.
+- Servicio interno Docker: `http://alexa-shopping-reader:8765/`.
+- Token Bearer almacenado como secreto del servicio, nunca en GitHub ni en el navegador.
+
+El acceso HTTP interno solo se permite para el hostname exacto `alexa-shopping-reader` cuando `ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP=true`. El puerto 8765 no se publica a Internet. La sesión inicial de Amazon se realiza manualmente mediante VNC sobre túnel SSH; las credenciales no se envían por Telegram ni se guardan como contraseña.
 
 ## GitHub y EasyPanel
 
 1. Usar el repositorio `guillesrl/casa-panel`. No subir `node_modules` ni `.env`.
 2. En EasyPanel crear un servicio de aplicación y conectar el repositorio y su rama principal.
 3. Seleccionar construcción con **Dockerfile**, ruta `Dockerfile`, contexto raíz del repositorio.
-4. Configurar `DASHBOARD_USER`, `DASHBOARD_PASSWORD` y el enlace iCal en las variables del servicio. El Dockerfile ya define `NODE_ENV=production`, `TZ=Europe/Andorra` y `PORT=3000`.
+4. Configurar `DASHBOARD_USER`, `DASHBOARD_PASSWORD`, `ALEXA_BRIDGE_URL`, `ALEXA_BRIDGE_TOKEN` y `ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP` en las variables del servicio. El Dockerfile ya define `NODE_ENV=production`, `TZ=Europe/Andorra` y `PORT=3000`.
 5. Configurar dominio con HTTPS y puerto interno **3000**. Desplegar. No requiere volúmenes persistentes.
 6. Verificar `/healthz` (sin datos privados), abrir el panel y autenticarse. Comprobar tiempo/noticias con acceso real a internet, añadir un evento de prueba al calendario y comprobar su aparición al actualizar. Activar despliegue automático desde GitHub si se desea.
 
@@ -102,8 +112,8 @@ Diseñado para vista horizontal de 1024×768 o superior, con dos columnas. En pa
 - Siete pruebas automatizadas: intervalo/caché/fallo, fuentes sin configurar, recurrencias/EXDATE/overrides/cancelación/cambio horario, eventos completos/en curso, RSS/enlaces, validación del adaptador y protección de producción/API.
 - Revisión en navegador de la interfaz y vista de ejemplo.
 - Peticiones reales desde el entorno de desarrollo: Open-Meteo respondió HTTP 200 con las variables solicitadas y el RSS respondió HTTP 200 con ocho titulares normalizados. El contenedor separado de vista previa no logró acceder a esas fuentes; la captura usa el modo de ejemplo. La comprobación integral desde EasyPanel queda pendiente.
-- Sin credenciales de Google Calendar ni adaptador Alexa: no se verificaron cuentas reales.
-- Dockerfile preparado; no se construyó la imagen Docker en este entorno.
+- Integración Alexa verificada desde Casa: HTTP 200, estado `ok` y cuatro artículos reales de Amazon España.
+- El adaptador Docker se construyó y se verificó sin puerto publicado; las solicitudes sin token devuelven HTTP 401.
 
 ## Fuentes
 
