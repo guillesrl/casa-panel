@@ -59,6 +59,16 @@ async function fetchText(url,headers={}) {
   for await(const chunk of response.body) {size+=chunk.length;if(size>5_000_000) throw new Error('Response too large');chunks.push(chunk);}
   return Buffer.concat(chunks).toString('utf8');
 }
+async function postText(url,headers={}) {
+  const parsed=new URL(url);
+  const internalHTTP=parsed.protocol==='http:'&&env.ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP==='true'&&parsed.hostname==='alexa-shopping-reader';
+  if(parsed.protocol!=='https:'&&!internalHTTP) throw new Error('HTTPS required');
+  const response=await fetch(url,{method:'POST',headers,signal:AbortSignal.timeout(12000)});
+  let size=0; const chunks=[];
+  for await(const chunk of response.body) {size+=chunk.length;if(size>100_000) throw new Error('Response too large');chunks.push(chunk);}
+  if(!response.ok) throw new Error('Upstream unavailable');
+  return Buffer.concat(chunks).toString('utf8');
+}
 export function cached(loader, enabled=true) {
   let last=null, checked=0, pending=null;
   return async(force=false)=>{
@@ -119,8 +129,15 @@ export function createServer(){
         const supplied=(req.headers.authorization||'').startsWith('Basic ')?Buffer.from(req.headers.authorization.slice(6),'base64').toString():'';
         if(!equal(supplied,`${env.DASHBOARD_USER||'casa'}:${env.DASHBOARD_PASSWORD}`)) {res.setHeader('WWW-Authenticate','Basic realm="Casa", charset="UTF-8"');return send(401,{error:'Autenticación necesaria'});}
       }
-      if(req.method!=='GET'&&req.method!=='HEAD') return send(405,{error:'Método no permitido'});
       if(u.pathname==='/api/config') return send(200,config);
+      if(u.pathname==='/api/alexa-login') {
+        if(req.method!=='POST') return send(405,{error:'Método no permitido'});
+        if(!env.ALEXA_BRIDGE_URL) return send(503,{status:'unconfigured'});
+        const url=new URL('/login/start',env.ALEXA_BRIDGE_URL).href;
+        const body=await postText(url,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ });
+        return send(202,JSON.parse(body));
+      }
+      if(req.method!=='GET'&&req.method!=='HEAD') return send(405,{error:'Método no permitido'});
       const loaders={weather,news,calendar,shopping};
       const name=u.pathname.replace('/api/','');
       if(u.pathname.startsWith('/api/')&&loaders[name]) return send(200,await loaders[name](u.searchParams.get('refresh')==='1'));

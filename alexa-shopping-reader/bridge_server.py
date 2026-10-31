@@ -6,6 +6,7 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from time import time
 
 from reader import read_list
 
@@ -15,6 +16,7 @@ TOKEN = os.environ.get("ALEXA_BRIDGE_TOKEN", "")
 TOKEN_FILE = os.environ.get("ALEXA_BRIDGE_TOKEN_FILE", "")
 if not TOKEN and TOKEN_FILE:
     TOKEN = Path(TOKEN_FILE).read_text(encoding="utf-8").strip()
+LOGIN_REQUEST = Path(os.environ.get("ALEXA_LOGIN_REQUEST_FILE", "/data/login-request"))
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -33,11 +35,33 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def authorized(self):
+        return not TOKEN or self.headers.get("Authorization") == f"Bearer {TOKEN}"
+
+    def do_POST(self):
+        if self.path != "/login/start":
+            self.send_json(404, {"error": "Not found"})
+            return
+        if not self.authorized():
+            self.send_json(401, {"error": "Unauthorized"})
+            return
+        try:
+            if LOGIN_REQUEST.exists() and time() - LOGIN_REQUEST.stat().st_mtime < 300:
+                self.send_json(202, {"status": "already_queued"})
+                return
+            LOGIN_REQUEST.parent.mkdir(parents=True, exist_ok=True)
+            temp=LOGIN_REQUEST.with_suffix(".tmp")
+            temp.write_text(str(int(time())), encoding="utf-8")
+            temp.replace(LOGIN_REQUEST)
+            self.send_json(202, {"status": "queued"})
+        except OSError:
+            self.send_json(503, {"status": "unavailable"})
+
     def do_GET(self):
         if self.path != "/":
             self.send_json(404, {"error": "Not found"})
             return
-        if TOKEN and self.headers.get("Authorization") != f"Bearer {TOKEN}":
+        if not self.authorized():
             self.send_json(401, {"error": "Unauthorized"})
             return
         result = read_list()

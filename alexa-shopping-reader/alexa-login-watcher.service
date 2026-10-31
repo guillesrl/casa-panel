@@ -1,0 +1,13 @@
+[Unit]
+Description=Alexa shopping reader login request watcher
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/alexa-shopping-reader/login-request-watcher.sh
+Restart=always
+RestartSec=3
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
