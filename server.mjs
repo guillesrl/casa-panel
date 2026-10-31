@@ -114,7 +114,8 @@ export function createServer(){
     try {
       const u=new URL(req.url,'http://localhost');
       if(u.pathname==='/healthz') return send(200,{ok:true});
-      if(env.DASHBOARD_PASSWORD) {
+      const publicAsset=u.pathname==='/manifest.webmanifest';
+      if(env.DASHBOARD_PASSWORD&&!publicAsset) {
         const supplied=(req.headers.authorization||'').startsWith('Basic ')?Buffer.from(req.headers.authorization.slice(6),'base64').toString():'';
         if(!equal(supplied,`${env.DASHBOARD_USER||'casa'}:${env.DASHBOARD_PASSWORD}`)) {res.setHeader('WWW-Authenticate','Basic realm="Casa", charset="UTF-8"');return send(401,{error:'Autenticación necesaria'});}
       }
