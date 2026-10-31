@@ -41,8 +41,11 @@
   .footer{padding-top:8px;font-size:8px}
 }
 
-.grid>.news-card{grid-row:span 2}
-@media(max-width:740px){.grid>.news-card{grid-row:auto}}
+.grid>.weather-card{grid-column:1;grid-row:1}
+.grid>.news-card{grid-column:2;grid-row:1}
+.grid>.calendar-card{grid-column:1;grid-row:2}
+.grid>.shopping-card{grid-column:2;grid-row:2}
+@media(max-width:740px){.grid>.weather-card,.grid>.news-card,.grid>.calendar-card,.grid>.shopping-card{grid-column:auto;grid-row:auto}}
 
 /* Tablet de pared: menos espacio vacío y tipografía legible a distancia. */
 @media (min-width:741px){
