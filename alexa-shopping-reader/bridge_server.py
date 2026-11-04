@@ -16,6 +16,8 @@ TOKEN = os.environ.get("ALEXA_BRIDGE_TOKEN", "")
 TOKEN_FILE = os.environ.get("ALEXA_BRIDGE_TOKEN_FILE", "")
 if not TOKEN and TOKEN_FILE:
     TOKEN = Path(TOKEN_FILE).read_text(encoding="utf-8").strip()
+RECONNECT_REQUEST = Path("/data/reconnect-request")
+RECONNECT_STATUS = Path("/data/reconnect-status")
 LOGIN_REQUEST = Path(os.environ.get("ALEXA_LOGIN_REQUEST_FILE", "/data/login-request"))
 
 
@@ -39,6 +41,18 @@ class Handler(BaseHTTPRequestHandler):
         return not TOKEN or self.headers.get("Authorization") == f"Bearer {TOKEN}"
 
     def do_POST(self):
+        if self.path == "/reconnect/start":
+            if not self.authorized():
+                self.send_json(401, {"error": "Unauthorized"}); return
+            try:
+                if RECONNECT_REQUEST.exists() or (RECONNECT_STATUS.exists() and RECONNECT_STATUS.read_text().strip() == "running" and time() - RECONNECT_STATUS.stat().st_mtime < 180):
+                    self.send_json(202, {"status": "running"}); return
+                RECONNECT_STATUS.write_text("queued", encoding="utf-8")
+                RECONNECT_REQUEST.touch()
+                self.send_json(202, {"status": "queued"})
+            except OSError:
+                self.send_json(503, {"status": "unavailable"})
+            return
         if self.path != "/login/start":
             self.send_json(404, {"error": "Not found"})
             return
@@ -58,6 +72,17 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(503, {"status": "unavailable"})
 
     def do_GET(self):
+        if self.path == "/reconnect/status":
+            if not self.authorized():
+                self.send_json(401, {"error": "Unauthorized"}); return
+            try:
+                status = RECONNECT_STATUS.read_text().strip() if RECONNECT_STATUS.exists() else "idle"
+                if status in ("queued", "running") and time() - RECONNECT_STATUS.stat().st_mtime > 180:
+                    status = "error"
+                self.send_json(200, {"status": status if status in ("idle", "queued", "running", "ok", "login_required", "error") else "error"})
+            except OSError:
+                self.send_json(503, {"status": "unavailable"})
+            return
         if self.path != "/":
             self.send_json(404, {"error": "Not found"})
             return

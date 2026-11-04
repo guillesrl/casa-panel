@@ -197,4 +197,5 @@ html,body{max-width:100%;overflow-x:clip}
 .calendar-body .event-day{font-size:24px;font-weight:300;letter-spacing:-1px}
 .calendar-body .event-month{font-size:9px;letter-spacing:1px;margin-top:4px}
 .calendar-body .event-info{min-width:0;flex:1}
-.calendar-body .event-time{font-size:11px;line-height:1.35;color:var(--muted);margin-bottom:6px}
+.calendar-body .event-time{font-size:11px;line-height:1.35;color:var(--muted);margin-bottom:6px}#alexa-reconnect-status{font-size:12px;color:var(--muted);margin:5px 0;min-height:0}
+#alexa-reconnect-status:empty{display:none}

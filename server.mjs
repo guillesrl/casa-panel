@@ -49,11 +49,11 @@ export function parseShopping(data) {
     return {id:String(x.id??i),name:x.name.trim(),completed:x.completed};
   }),updatedAt:new Date(updatedAt).toISOString()};
 }
-async function fetchText(url,headers={}) {
+async function fetchText(url,headers={},timeout=12000) {
   const parsed=new URL(url);
   const internalHTTP=parsed.protocol==='http:'&&env.ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP==='true'&&parsed.hostname==='alexa-shopping-reader';
   if(parsed.protocol!=='https:'&&!internalHTTP) throw new Error('HTTPS required');
-  const response=await fetch(url,{headers,signal:AbortSignal.timeout(12000)});
+  const response=await fetch(url,{headers,signal:AbortSignal.timeout(timeout)});
   if(!response.ok) {
     let detail={};
     try {detail=await response.json();} catch {}
@@ -80,7 +80,7 @@ export function cached(loader, enabled=true) {
   return async(force=false)=>{
     if(!enabled) return {status:'unconfigured',data:null,updatedAt:null};
     if(pending) return pending;
-    if(last && Date.now()-checked < (force?30000:REFRESH_MS)) return last;
+    if(last && Date.now()-checked < (force==='reconnect'?0:force?30000:REFRESH_MS)) return last;
     pending=(async()=>{try {
       const data=await loader();
       last={status:'ok',data,updatedAt:new Date().toISOString()};
@@ -117,7 +117,7 @@ async function loadNews(){
 }
 const news=cached(loadNews);
 const calendar=cached(async()=>parseCalendar(await fetchText(env.GOOGLE_CALENDAR_ICS_URL)),!!env.GOOGLE_CALENDAR_ICS_URL);
-const shopping=cached(async()=>parseShopping(JSON.parse(await fetchText(env.ALEXA_BRIDGE_URL,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ }))),!!env.ALEXA_BRIDGE_URL);
+const shopping=cached(async()=>parseShopping(JSON.parse(await fetchText(env.ALEXA_BRIDGE_URL,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ },90000))),!!env.ALEXA_BRIDGE_URL);
 function equal(a,b){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
 export function createServer(){
   if(env.NODE_ENV==='production'&&(!env.DASHBOARD_USER||!env.DASHBOARD_PASSWORD)) throw new Error('Set DASHBOARD_USER and DASHBOARD_PASSWORD before production start');
@@ -136,6 +136,16 @@ export function createServer(){
         if(!equal(supplied,`${env.DASHBOARD_USER||'casa'}:${env.DASHBOARD_PASSWORD}`)) {res.setHeader('WWW-Authenticate','Basic realm="Casa", charset="UTF-8"');return send(401,{error:'Autenticación necesaria'});}
       }
       if(u.pathname==='/api/config') return send(200,config);
+      if(u.pathname==='/api/alexa-reconnect/start' && req.method==='POST') {
+        if(!env.ALEXA_BRIDGE_URL) return send(503,{status:'unconfigured'});
+        const url=new URL('/reconnect/start',env.ALEXA_BRIDGE_URL).href;
+        return send(202,JSON.parse(await postText(url,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ })));
+      }
+      if(u.pathname==='/api/alexa-reconnect/status' && req.method==='GET') {
+        if(!env.ALEXA_BRIDGE_URL) return send(503,{status:'unconfigured'});
+        const url=new URL('/reconnect/status',env.ALEXA_BRIDGE_URL).href;
+        return send(200,JSON.parse(await fetchText(url,env.ALEXA_BRIDGE_TOKEN?{Authorization:`Bearer ${env.ALEXA_BRIDGE_TOKEN}`}:{ })));
+      }
       if(u.pathname==='/api/alexa-login') {
         if(req.method!=='POST') return send(405,{error:'Método no permitido'});
         if(!env.ALEXA_BRIDGE_URL) return send(503,{status:'unconfigured'});
@@ -146,7 +156,7 @@ export function createServer(){
       if(req.method!=='GET'&&req.method!=='HEAD') return send(405,{error:'Método no permitido'});
       const loaders={weather,news,calendar,shopping};
       const name=u.pathname.replace('/api/','');
-      if(u.pathname.startsWith('/api/')&&loaders[name]) return send(200,await loaders[name](u.searchParams.get('refresh')==='1'));
+      if(u.pathname.startsWith('/api/')&&loaders[name]) return send(200,await loaders[name](name==='shopping'&&u.searchParams.get('refresh')==='reconnect'?'reconnect':u.searchParams.get('refresh')==='1'));
       const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/icon.svg':'icon.svg','/manifest.webmanifest':'manifest.webmanifest'};
       const file=files[u.pathname];
       if(!file) return send(404,{error:'No encontrado'});
