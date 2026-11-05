@@ -233,3 +233,15 @@ html,body{max-width:100%;overflow-x:clip}
 .grid.carousel-active .weather-details,.grid.carousel-active .hour,.grid.carousel-active .event h3,.grid.carousel-active .shopping-item{font-size:clamp(16px,1.6vw,22px)}
 
 @media (max-width:740px){.grid.carousel-active{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(2,minmax(0,1fr))}}
+
+/* Tipografía para leer a distancia en las tarjetas del carrusel. */
+.grid.carousel-active :is(.weather-card,.calendar-card,.shopping-card) .card-head h2{font-size:clamp(21px,2.2vw,30px)}
+.grid.carousel-active :is(.weather-card,.calendar-card,.shopping-card) .tag{font-size:clamp(11px,1vw,14px)}
+.grid.carousel-active .weather-card .temperature{font-size:clamp(76px,9vw,128px)}
+.grid.carousel-active .weather-card .weather-description{font-size:clamp(24px,2.6vw,36px)}
+.grid.carousel-active .weather-card .weather-range,.grid.carousel-active .weather-card .weather-details,.grid.carousel-active .weather-card .hour,.grid.carousel-active .weather-card .hour time{font-size:clamp(16px,1.5vw,21px)}
+.grid.carousel-active .calendar-card .event h3,.grid.carousel-active .shopping-card .shopping-item{font-size:clamp(21px,2vw,29px)}
+.grid.carousel-active .calendar-card .event-time,.grid.carousel-active .calendar-card .event-location{font-size:clamp(15px,1.35vw,19px)}
+.grid.carousel-active .calendar-card .event-day{font-size:clamp(27px,2.5vw,34px)}
+.grid.carousel-active .calendar-card .event-month,.grid.carousel-active .shopping-card .list-caption{font-size:clamp(12px,1vw,15px)}
+.grid.carousel-active :is(.weather-card,.calendar-card,.shopping-card) .card-foot{font-size:clamp(12px,1vw,15px)}
