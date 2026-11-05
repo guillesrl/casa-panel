@@ -139,4 +139,4 @@ Diseñado para tablet en horizontal, incluida la resolución 2000×1200: clima, 
 - Noticias: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada (solo títulos, fuente y enlace al medio).
 - iCalendar: https://github.com/jens-maus/node-ical
 
-El botón «Reconectar Alexa» solicita al lector una lectura con el perfil del servidor y, cuando termina, actualiza la tarjeta. Si Amazon solicita iniciar sesión, ofrece preparar el acceso VNC. El watcher del host requiere `reconnect.py` y la versión actual de `login-request-watcher.sh`; el lector Docker debe incluir la versión actual de `bridge_server.py`.
+El botón «Reconectar Alexa» abre Amazon con el perfil del servidor y, cuando termina, actualiza la tarjeta. Si Amazon requiere una identificación, indica que hay que acceder por VNC. El watcher del host requiere `reconnect.py` y la versión actual de `login-request-watcher.sh`; el lector Docker debe incluir la versión actual de `bridge_server.py`.

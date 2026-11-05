@@ -10,6 +10,8 @@ while true; do
     fi 9>"$LOCK"
   fi
   if [[ -f /home/ubuntu/.local/share/alexa-shopping-reader/reconnect-request ]]; then
+    # Process any newly queued login before starting the profile reader.
+    if [[ -f "$REQUEST" ]]; then continue; fi
     rm -f /home/ubuntu/.local/share/alexa-shopping-reader/reconnect-request
     if flock -n 9; then
       /home/ubuntu/alexa-shopping-reader/reconnect.py || true
