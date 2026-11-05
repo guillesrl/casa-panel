@@ -200,5 +200,8 @@ html,body{max-width:100%;overflow-x:clip}
 .calendar-body .event-time{font-size:11px;line-height:1.35;color:var(--muted);margin-bottom:6px}#alexa-reconnect-status{font-size:12px;color:var(--muted);margin:5px 0;min-height:0}
 #alexa-reconnect-status:empty{display:none}
 
-.alexa-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:3px}
-.alexa-actions .login-button{margin:0;min-height:30px;padding:4px 6px;font-size:10px}
+.alexa-footer{flex-wrap:wrap}
+.alexa-footer-actions{flex-wrap:wrap}
+#alexa-reconnect{border:0;background:transparent;color:var(--text);padding:3px 2px;font-size:inherit;line-height:inherit}
+#alexa-reconnect:hover{text-decoration:underline}
+#alexa-reconnect:disabled{opacity:.6;cursor:wait}
