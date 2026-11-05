@@ -53,10 +53,10 @@ const carouselCards=['.weather-card','.calendar-card','.shopping-card','.news-ca
 let carouselActive=false,carouselIndex=0,carouselTimer=null;
 function showCarouselCard(){
   const cards=carouselCards.map(selector=>$(selector));
-  cards.forEach((card,index)=>{card.hidden=carouselActive&&index!==carouselIndex;});
+  cards.forEach((card,index)=>{card.hidden=carouselActive&&Math.floor(index/2)!==carouselIndex;});
   if(carouselActive){
-    const duration=carouselIndex===carouselCards.length-1?20000:12000;
-    carouselTimer=setTimeout(()=>{carouselIndex=(carouselIndex+1)%carouselCards.length;showCarouselCard();},duration);
+    const duration=carouselIndex===1?20000:12000;
+    carouselTimer=setTimeout(()=>{carouselIndex=(carouselIndex+1)%2;showCarouselCard();},duration);
   }
 }
 function toggleCarousel(){

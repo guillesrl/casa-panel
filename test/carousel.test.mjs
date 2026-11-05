@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const source=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
 const code=source.slice(source.indexOf('const carouselCards='),source.indexOf("$('#carousel').onclick=toggleCarousel;"));
 
-test('carousel muestra clima, agenda, Alexa y noticias; al detenerlo vuelve a cuatro tarjetas',()=>{
+test('carrusel muestra clima y agenda, después Alexa y noticias, y vuelve a cuatro tarjetas',()=>{
   const names=['.weather-card','.calendar-card','.shopping-card','.news-card'];
   const cards=Object.fromEntries(names.map(n=>[n,{hidden:false}]));
   let callback,delay;
@@ -18,11 +18,13 @@ test('carousel muestra clima, agenda, Alexa y noticias; al detenerlo vuelve a cu
   vm.createContext(context);
   vm.runInContext(code,context);
   vm.runInContext('toggleCarousel()',context);
-  for(let i=0;i<4;i++){
-    assert.deepEqual(names.filter(n=>!cards[n].hidden),[names[i]]);
-    assert.equal(delay,i===3?20000:12000);
-    if(i<3)callback();
-  }
+  assert.deepEqual(names.filter(n=>!cards[n].hidden),names.slice(0,2));
+  assert.equal(delay,12000);
+  callback();
+  assert.deepEqual(names.filter(n=>!cards[n].hidden),names.slice(2,4));
+  assert.equal(delay,20000);
+  callback();
+  assert.deepEqual(names.filter(n=>!cards[n].hidden),names.slice(0,2));
   vm.runInContext('toggleCarousel()',context);
   assert.equal(names.filter(n=>!cards[n].hidden).length,4);
   assert.equal(button.title,'Iniciar carrusel');
