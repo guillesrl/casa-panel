@@ -10,7 +10,7 @@ Panel doméstico ligero en español, inspirado en pantallas de hogar. Cuatro tar
 - Modo claro, pantalla completa, solicitud de Screen Wake Lock y vista de ejemplo explícita. Datos ficticios únicamente al activar «Vista de ejemplo» en Ajustes; no se activa por defecto ni se guarda esa elección.
 - Google Calendar necesita el enlace secreto iCal del usuario. Lectura, sin crear ni editar eventos. Incluye recurrencias, excepciones, eventos de día completo y cambios de zona horaria.
 - Amazon retiró List Management REST API el 1 de julio de 2024. La integración actual usa el servicio externo `alexa-shopping-reader`, que lee Amazon España mediante Playwright y un perfil persistente autenticado manualmente. El lector es estrictamente de solo lectura.
-- Casa recibe la lista por `GET ALEXA_BRIDGE_URL`, muestra los artículos pendientes/completados y avisa si los datos superan 30 minutos. Si Amazon devuelve `login_required`, muestra un botón autenticado para solicitar el acceso VNC; un watcher interno inicia `start-login.sh` una sola vez mediante un archivo de solicitud y bloqueo. En tablet, clima, agenda y Alexa ocupan la fila superior; noticias ocupa todo el ancho de la fila inferior. En móvil, las tarjetas se apilan.
+- Casa recibe la lista por `GET ALEXA_BRIDGE_URL`, muestra los artículos pendientes/completados y avisa si los datos superan 30 minutos. Si Amazon devuelve `login_required`, muestra un botón autenticado para solicitar el acceso VNC; un watcher interno inicia `start-login.sh` una sola vez mediante un archivo de solicitud y bloqueo. En tablet y escritorio, las cuatro tarjetas ocupan una cuadrícula de dos por dos. En móvil, las tarjetas se apilan.
 - Repositorio: https://github.com/guillesrl/casa-panel. El servicio está desplegado en EasyPanel/Docker Swarm y su código se publica desde la rama `main`.
 
 ## Estructura del monorepo
@@ -122,7 +122,7 @@ La URL completa del webhook contiene un token: mantenerla únicamente en la conf
 
 ## Tablet
 
-Diseñado para tablet en horizontal, incluida la resolución 2000×1200: clima, agenda y Alexa en tres columnas superiores, noticias a todo el ancho debajo. En pantallas estrechas pasa a una columna. Ajustes → Pantalla encendida solicita Wake Lock, disponible según navegador y HTTPS; si el sistema lo impide, ajustar el bloqueo de pantalla de la tablet. Pantalla completa necesita una pulsación del usuario y puede no estar disponible en Safari/iPad; se puede usar «Añadir a pantalla de inicio». No es una aplicación offline.
+Diseñado para tablet en horizontal, incluida la resolución 2000×1200: clima, agenda, Alexa y noticias en cuatro cuadrantes iguales. En pantallas estrechas pasa a una columna. Ajustes → Pantalla encendida solicita Wake Lock, disponible según navegador y HTTPS; si el sistema lo impide, ajustar el bloqueo de pantalla de la tablet. Pantalla completa necesita una pulsación del usuario y puede no estar disponible en Safari/iPad; se puede usar «Añadir a pantalla de inicio». No es una aplicación offline.
 
 ## Verificación realizada
 

@@ -205,3 +205,14 @@ html,body{max-width:100%;overflow-x:clip}
 #alexa-reconnect{border:0;background:transparent;color:var(--text);padding:3px 2px;font-size:inherit;line-height:inherit}
 #alexa-reconnect:hover{text-decoration:underline}
 #alexa-reconnect:disabled{opacity:.6;cursor:wait}
+
+/* Cuatro cuadrantes iguales en tablet y escritorio. */
+@media (min-width:741px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-template-areas:"weather calendar" "shopping news"}
+  .news-list{display:block;min-height:0;overflow:auto;padding:4px 0}
+  .news-item{gap:9px;padding:6px 0}
+  .news-index{font-size:10px;line-height:1.4}
+  .news-copy h3{display:block;overflow:visible;-webkit-line-clamp:unset;font-size:clamp(13px,1.05vw,16px);line-height:1.25}
+  .news-copy p{font-size:clamp(9px,.7vw,11px);margin-top:3px}
+  .news-arrow{font-size:14px}
+}
