@@ -7,7 +7,7 @@ VNC_PORT="${VNC_PORT:-5901}"
 export DISPLAY=":${DISPLAY_NUM}"
 
 if ! [ -f "$BASE/xvfb.pid" ] || ! kill -0 "$(cat "$BASE/xvfb.pid" 2>/dev/null || echo 0)" 2>/dev/null; then
-  Xvfb ":${DISPLAY_NUM}" -screen 0 1280x900x24 -nolisten tcp >/tmp/alexa-xvfb.log 2>&1 &
+  Xvfb ":${DISPLAY_NUM}" -screen 0 1280x900x24 -nolisten tcp >/tmp/alexa-xvfb.log 2>&1 9>&- &
   echo $! > "$BASE/xvfb.pid"
 fi
 
@@ -18,7 +18,7 @@ done
 [ -S "/tmp/.X11-unix/X${DISPLAY_NUM}" ] || { cat /tmp/alexa-xvfb.log >&2 || true; exit 1; }
 
 if ! [ -f "$BASE/x11vnc.pid" ] || ! kill -0 "$(cat "$BASE/x11vnc.pid" 2>/dev/null || echo 0)" 2>/dev/null; then
-  x11vnc -display "$DISPLAY" -localhost -rfbport "$VNC_PORT" -nopw -forever -shared >/tmp/alexa-x11vnc.log 2>&1 &
+  x11vnc -display "$DISPLAY" -localhost -rfbport "$VNC_PORT" -nopw -forever -shared >/tmp/alexa-x11vnc.log 2>&1 9>&- &
   echo $! > "$BASE/x11vnc.pid"
 fi
 

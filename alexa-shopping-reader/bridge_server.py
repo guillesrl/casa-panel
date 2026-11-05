@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import fcntl
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -16,6 +17,7 @@ TOKEN = os.environ.get("ALEXA_BRIDGE_TOKEN", "")
 TOKEN_FILE = os.environ.get("ALEXA_BRIDGE_TOKEN_FILE", "")
 if not TOKEN and TOKEN_FILE:
     TOKEN = Path(TOKEN_FILE).read_text(encoding="utf-8").strip()
+PROFILE_LOCK = Path("/data/login.lock")
 RECONNECT_REQUEST = Path("/data/reconnect-request")
 RECONNECT_STATUS = Path("/data/reconnect-status")
 LOGIN_REQUEST = Path(os.environ.get("ALEXA_LOGIN_REQUEST_FILE", "/data/login-request"))
@@ -89,7 +91,17 @@ class Handler(BaseHTTPRequestHandler):
         if not self.authorized():
             self.send_json(401, {"error": "Unauthorized"})
             return
-        result = read_list()
+        try:
+            with PROFILE_LOCK.open("a") as lock:
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    self.send_json(503, {"status": "busy"})
+                    return
+                result = read_list()
+        except OSError:
+            self.send_json(503, {"status": "unavailable"})
+            return
         if not result.get("ok"):
             self.send_json(503, {"error": result.get("message", "Alexa unavailable"), "status": result.get("status")})
             return
