@@ -216,3 +216,18 @@ html,body{max-width:100%;overflow-x:clip}
   .news-copy p{font-size:clamp(9px,.7vw,11px);margin-top:3px}
   .news-arrow{font-size:14px}
 }
+
+/* Carrusel: una tarjeta ocupa la cuadrícula completa. */
+.shell.carousel-mode{height:100dvh;min-height:0}
+.grid.carousel-active{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);grid-template-areas:"slide";min-height:0}
+.grid.carousel-active>.card{grid-area:slide;min-height:0}
+.grid.carousel-active .news-list{display:block;min-height:0;overflow:auto}
+.grid.carousel-active .news-copy h3{font-size:clamp(17px,2vw,26px);line-height:1.3}
+.grid.carousel-active .news-item{padding:clamp(8px,1vh,14px) 0}
+.grid.carousel-active .events,.grid.carousel-active .shopping-grid{max-height:100%;overflow:auto}
+.grid.carousel-active .weather-body,.grid.carousel-active .calendar-body,.grid.carousel-active .shopping-body,.grid.carousel-active .news-list{width:100%;max-width:1100px;align-self:center}
+.grid.carousel-active .temperature{font-size:clamp(80px,12vw,150px)}
+.grid.carousel-active .weather-description{font-size:clamp(20px,2.4vw,32px)}
+.grid.carousel-active .weather-art{width:clamp(130px,18vw,240px);height:clamp(120px,20vh,220px)}
+.grid.carousel-active .weather-art .weather-symbol{font-size:clamp(100px,15vw,190px)}
+.grid.carousel-active .weather-details,.grid.carousel-active .hour,.grid.carousel-active .event h3,.grid.carousel-active .shopping-item{font-size:clamp(16px,1.6vw,22px)}

@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s);
-const paths={home:'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',refresh:'M20 7v5h-5 M4 17v-5h5 M5 8a8 8 0 0 1 13-3l2 3 M4 16l2 3a8 8 0 0 0 13-3',expand:'M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5',settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1Z',pin:'M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0 M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6',news:'M4 4h13v16H4Z M17 8h4v10a2 2 0 0 1-2 2H4 M7 8h7 M7 12h7 M7 16h4',calendar:'M3 5h18v16H3Z M7 3v4 M17 3v4 M3 10h18 M7 14h2 M13 14h2 M7 18h2',bag:'M5 7h14l2 14H3Z M8 8V6a4 4 0 0 1 8 0v2',close:'m6 6 12 12 M6 18 18 6',link:'m9 15 6-6 M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0 M16 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0',wind:'M3 8h12a3 3 0 1 0-3-3 M3 12h15a3 3 0 1 1-3 3 M3 16h5',drop:'M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z'};
+const paths={play:'M8 5v14l11-7Z',pause:'M8 5v14 M16 5v14',home:'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',refresh:'M20 7v5h-5 M4 17v-5h5 M5 8a8 8 0 0 1 13-3l2 3 M4 16l2 3a8 8 0 0 0 13-3',expand:'M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5',settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1Z',pin:'M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0 M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6',news:'M4 4h13v16H4Z M17 8h4v10a2 2 0 0 1-2 2H4 M7 8h7 M7 12h7 M7 16h4',calendar:'M3 5h18v16H3Z M7 3v4 M17 3v4 M3 10h18 M7 14h2 M13 14h2 M7 18h2',bag:'M5 7h14l2 14H3Z M8 8V6a4 4 0 0 1 8 0v2',close:'m6 6 12 12 M6 18 18 6',link:'m9 15 6-6 M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0 M16 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0',wind:'M3 8h12a3 3 0 1 0-3-3 M3 12h15a3 3 0 1 1-3 3 M3 16h5',drop:'M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z'};
 const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name]||paths.home}"/></svg>`;
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -49,6 +49,28 @@ $('#alexa-reconnect').onclick=reconnectAlexa;
 async function refresh(force=false){if(busy||demo)return;busy=true;const id=generation;$('#refresh').disabled=true;await Promise.all(Object.entries(renderers).map(async([name,render])=>{if(name==='shopping'&&reconnecting)return;let result;try{const query=name==='shopping'||force?'?refresh=1':'';result=await api(`/api/${name}${query}`,name==='shopping'?105000:18000);}catch{result={status:realData[name]?.data?'stale':'error',data:realData[name]?.data||null,updatedAt:realData[name]?.updatedAt||null};}realData[name]=result;if(!demo&&id===generation)render(result);}));busy=false;$('#refresh').disabled=false;nextRefresh=Date.now()+config.refreshMs;updateClock();}
 function example(){const now=Date.now();const at=h=>new Date(now+h*3600000).toISOString();const result=data=>({status:'ok',updatedAt:new Date().toISOString(),data});renderWeather(result({current:{temperature_2m:17,apparent_temperature:16,weather_code:0,is_day:1,wind_speed_10m:3,relative_humidity_2m:48},daily:{temperature_2m_max:[20],temperature_2m_min:[9],precipitation_probability_max:[5]},hourly:{time:[1,2,3,4].map(h=>(now+h*3600000)/1000),temperature_2m:[18,19,20,18],weather_code:[0,0,2,2]}}));renderNews(result([{title:'El mundo, de un vistazo: los titulares que te acompañan cada mañana',source:'Titular de ejemplo',url:'https://elpais.com/'},{title:'Un espacio para seguir la actualidad de España y del mundo',source:'Titular de ejemplo',url:'https://elpais.com/'},{title:'Las noticias se renuevan automáticamente, mientras tú sigues con tu día',source:'Titular de ejemplo',url:'https://elpais.com/'}]));renderCalendar(result([{title:'Lavar el coche',start:at(2),end:at(3),allDay:false,location:'Un rato para poner todo a punto'},{title:'Cena en casa',start:at(5),end:at(6),allDay:false,location:''}]));renderShopping(result({updatedAt:new Date().toISOString(),items:[{name:'Leche',completed:false},{name:'Aguacates',completed:false},{name:'Café',completed:false},{name:'Pan',completed:false},{name:'Huevos',completed:false},{name:'Aceite de oliva',completed:true}]}));}
 function toast(msg){$('#toast').textContent=msg;$('#toast').hidden=false;setTimeout(()=>$('#toast').hidden=true,4500);}
+const carouselCards=['.weather-card','.calendar-card','.shopping-card','.news-card'];
+let carouselActive=false,carouselIndex=0,carouselTimer=null;
+function showCarouselCard(){
+  const cards=carouselCards.map(selector=>$(selector));
+  cards.forEach((card,index)=>{card.hidden=carouselActive&&index!==carouselIndex;});
+  if(carouselActive){
+    const duration=carouselIndex===carouselCards.length-1?20000:12000;
+    carouselTimer=setTimeout(()=>{carouselIndex=(carouselIndex+1)%carouselCards.length;showCarouselCard();},duration);
+  }
+}
+function toggleCarousel(){
+  carouselActive=!carouselActive;
+  clearTimeout(carouselTimer);carouselTimer=null;carouselIndex=0;
+  $('.grid').classList.toggle('carousel-active',carouselActive);
+  $('.shell').classList.toggle('carousel-mode',carouselActive);
+  const button=$('#carousel');
+  const label=carouselActive?'Detener carrusel':'Iniciar carrusel';
+  button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(carouselActive));button.title=label;
+  button.innerHTML=icon(carouselActive?'pause':'play');
+  showCarouselCard();
+}
+$('#carousel').onclick=toggleCarousel;
 $('#refresh').onclick=()=>demo?example():refresh(true);
 $('#settings').onclick=()=>$('#settings-dialog').showModal();$('#close-settings').onclick=()=>$('#settings-dialog').close();
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if($('.shell').requestFullscreen)await $('.shell').requestFullscreen();else toast('Este navegador no permite pantalla completa. Usa «Añadir a pantalla de inicio».');}catch{toast('No se pudo activar la pantalla completa.');}};
