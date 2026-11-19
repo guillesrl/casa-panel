@@ -232,7 +232,10 @@ html,body{max-width:100%;overflow-x:clip}
 .grid.carousel-active .weather-art .weather-symbol{font-size:clamp(78px,9vw,130px)}
 .grid.carousel-active .weather-details,.grid.carousel-active .hour,.grid.carousel-active .event h3,.grid.carousel-active .shopping-item{font-size:clamp(16px,1.6vw,22px)}
 
+/* Solo la pareja Alexa/noticias dedica el 70% del espacio útil a los titulares. */
+.grid.carousel-active:has(>.news-card:not([hidden])){grid-template-columns:minmax(0,3fr) minmax(0,7fr)}
 @media (max-width:740px){.grid.carousel-active{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(2,minmax(0,1fr))}}
+@media (max-width:740px){.grid.carousel-active:has(>.news-card:not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,3fr) minmax(0,7fr)}}
 
 /* Tipografía para leer a distancia en las tarjetas del carrusel. */
 .grid.carousel-active :is(.weather-card,.calendar-card,.shopping-card) .card-head h2{font-size:clamp(21px,2.2vw,30px)}

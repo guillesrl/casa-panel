@@ -3,6 +3,23 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 
+const css=await readFile(new URL('../public/style.css',import.meta.url),'utf8');
+const newsPair='.grid.carousel-active:has(>.news-card:not([hidden]))';
+
+test('carrusel Alexa/noticias reparte las columnas 30/70 solo cuando noticias está visible',()=>{
+  assert.ok(css.includes(`${newsPair}{grid-template-columns:minmax(0,3fr) minmax(0,7fr)}`));
+});
+
+test('carrusel Alexa/noticias apilado reparte las filas 30/70 sin crear otra columna',()=>{
+  assert.ok(css.includes(`@media (max-width:740px){${newsPair}{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,3fr) minmax(0,7fr)}}`));
+});
+
+test('se conservan cuadrantes estáticos y carrusel clima/agenda a partes iguales',()=>{
+  assert.ok(css.includes('.grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-template-areas:"weather calendar" "shopping news"}'));
+  assert.ok(css.includes('.grid.carousel-active{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr);grid-template-areas:none;min-height:0}'));
+  assert.ok(css.includes('@media (max-width:740px){.grid.carousel-active{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(2,minmax(0,1fr))}}'));
+});
+
 const source=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
 const code=source.slice(source.indexOf('const carouselCards='),source.indexOf("$('#carousel').onclick=toggleCarousel;"));
 

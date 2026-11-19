@@ -266,5 +266,8 @@
  `bridge_server.py`.
 
    El botón de reproducción junto a actualizar activa el carrusel: clima con agenda
- durante 12 segundos, y Alexa con noticias durante 20. Al detenerlo vuelven las cuatro
- tarjetas.
+ a partes iguales durante 12 segundos, y Alexa (30%) con noticias (70%) durante 20.
+ En pantallas estrechas las parejas se apilan: Alexa ocupa el 30% de la altura útil y
+ noticias el 70%, mientras clima y agenda mantienen alturas iguales. Al detenerlo
+ vuelve la distribución normal, sin cambios: cuatro cuadrantes iguales en tablet y
+ escritorio, o una columna en pantallas estrechas.
