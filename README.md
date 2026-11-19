@@ -1,52 +1,43 @@
  # Casa · Panel para tablet
 
-   Panel doméstico ligero en español, inspirado en pantallas de hogar. Cuatro tarjetas
- visibles: tiempo, actualidad general, Google Calendar y lista de compras de Alexa.
- HTML/CSS/JavaScript sin framework en el navegador; servidor Node.js 24 con dos
- dependencias para RSS e iCalendar. No necesita base de datos ni compilación.
+   Panel doméstico en español con cuatro tarjetas: tiempo, noticias, Google Calendar
+ y compras de Alexa. HTML/CSS/JavaScript sin framework; servidor Node.js 24 con dos
+ dependencias para RSS e iCalendar. Sin base de datos ni compilación.
 
    ## Estado real de la entrega
 
-   - Implementados: interfaz adaptable, reloj Europe/Andorra, consulta meteorológica
- Open-Meteo, lector RSS de El País, BBC Mundo y Euronews por defecto, lector iCal de
- Google Calendar y lector de un adaptador JSON externo para la lista.
-   - Datos consultados cada 15 minutos mientras la página está visible. Al volver de
- suspensión se actualiza si venció el intervalo. El reloj se actualiza cada segundo.
- Botón de actualización manual; el servidor limita nuevas consultas a una cada 30
- segundos por fuente.
-   - Cada fuente falla de forma independiente. Se conservan los últimos datos durante la
- sesión/proceso con aviso de antigüedad; el aviso superior identifica la fuente concreta
- con error o datos antiguos (por ejemplo, `Fuente no disponible: Alexa (lista de
- compras)`). No hay caché persistente tras reiniciar servidor o cerrar página.
-   - Modo claro, pantalla completa, solicitud de Screen Wake Lock y vista de ejemplo
- explícita. Datos ficticios únicamente al activar «Vista de ejemplo» en Ajustes; no se
- activa por defecto ni se guarda esa elección.
+   - Interfaz adaptable, reloj Europe/Andorra, Open-Meteo, RSS de El País, BBC Mundo y
+ Euronews por defecto, iCal de Google Calendar y adaptador JSON externo para compras.
+   - Consulta cada 15 minutos con la página visible y al volver de suspensión si venció
+ el intervalo. Reloj actualizado cada segundo y botón de actualización manual; límite
+ del servidor: una consulta cada 30 segundos por fuente.
+   - Fallos independientes por fuente: se conservan los últimos datos durante la
+ sesión/proceso con aviso superior de error o antigüedad que identifica la fuente
+ (por ejemplo, `Fuente no disponible: Alexa (lista de compras)`). Sin caché persistente
+ tras reiniciar servidor o cerrar página.
+   - Modo claro, pantalla completa y solicitud de Screen Wake Lock. Datos ficticios solo
+ al activar «Vista de ejemplo» en Ajustes; desactivada por defecto y sin guardar la elección.
    - Google Calendar necesita el enlace secreto iCal del usuario. Lectura, sin crear ni
  editar eventos. Incluye recurrencias, excepciones, eventos de día completo y cambios de
  zona horaria.
-   - Amazon retiró List Management REST API el 1 de julio de 2024. La integración actual
- usa el servicio externo `alexa-shopping-reader`, que lee Amazon España mediante
- Playwright y un perfil persistente autenticado manualmente. El lector es estrictamente
- de solo lectura.
+   - Amazon retiró List Management REST API el 1 de julio de 2024. Se usa
+ `alexa-shopping-reader`: lectura de Amazon España mediante Playwright y perfil
+ persistente autenticado manualmente, sin modificar la lista.
    - Casa recibe la lista por `GET ALEXA_BRIDGE_URL`, muestra los artículos
  pendientes/completados y avisa si los datos superan 30 minutos. Si Amazon devuelve
  `login_required`, muestra un botón autenticado para solicitar el acceso VNC; un watcher
  interno inicia `start-login.sh` una sola vez mediante un archivo de solicitud y
- bloqueo. En tablet y escritorio, las cuatro tarjetas ocupan una cuadrícula de dos por
- dos. En móvil, las tarjetas se apilan.
+ bloqueo. La distribución por pantalla se detalla en «Tablet».
    - Repositorio: https://github.com/guillesrl/casa-panel. El servicio está desplegado
  en EasyPanel/Docker Swarm y su código se publica desde la rama `main`.
 
    ## Estructura del monorepo
 
-   El repositorio contiene los dos servicios de la integración:
+   Dos servicios independientes:
 
-   - `casa-panel` en la raíz: panel web Node.js desplegado en EasyPanel usando el
- `Dockerfile` raíz.
-   - `alexa-shopping-reader/`: lector Playwright, adaptador HTTP y herramientas de login
- VNC.
-   - El lector se despliega como servicio privado independiente usando
- `alexa-shopping-reader/Dockerfile`.
+   - `casa-panel` en la raíz: panel Node.js en EasyPanel con el `Dockerfile` raíz.
+   - `alexa-shopping-reader/`: lector Playwright, adaptador HTTP y login VNC; servicio
+ privado con `alexa-shopping-reader/Dockerfile`.
 
    Ambos servicios comparten el contrato JSON, pero se despliegan por separado. El
  perfil de Chromium, cookies, `.venv`, estados, tokens y archivos `.env` están excluidos
@@ -90,9 +81,8 @@
    | `ALEXA_BRIDGE_ALLOW_INTERNAL_HTTP` | `true` solo para el hostname exacto
  `alexa-shopping-reader` en la red privada; por defecto `false` |
 
-   Las URLs y credenciales se usan solo en el servidor. El navegador recibe los datos
- normalizados, no los secretos. `.env` está excluido de Git y Docker. La aplicación solo
- admite lectura; no expone un editor público de configuración.
+   URLs y credenciales permanecen en el servidor; el navegador solo recibe datos
+ normalizados. `.env` está excluido de Git y Docker. Sin editor público de configuración.
 
    ### Google Calendar
 
@@ -102,17 +92,15 @@
  público. Si tu cuenta administrada no ofrece ese enlace, habrá que implementar OAuth u
  otra conexión autorizada.
 
-   La ventana es de siete días y hasta 30 eventos. La velocidad con la que Google
- actualice su feed iCal puede añadir retraso respecto al intervalo del panel. Las fechas
- de día completo conservan su fecha de calendario; hora de eventos y reloj se muestran
- en `TZ`.
+   Ventana de siete días y hasta 30 eventos. El feed iCal de Google puede añadir retraso
+ al intervalo del panel. Los eventos de día completo conservan su fecha; las horas y el
+ reloj se muestran en `TZ`.
 
    ### Integración de Alexa
 
    Fuente oficial sobre la retirada de la API:
 
- https://developer.amazon.com/en-US/docs/alexa/ask-overviews/deprecated-features.html#sh
- opping-lists
+ https://developer.amazon.com/en-US/docs/alexa/ask-overviews/deprecated-features.html#shopping-lists
 
    El servicio `alexa-shopping-reader` responde a `GET ALEXA_BRIDGE_URL`, con
  autorización `Bearer`, usando este contrato:
@@ -127,9 +115,8 @@
    }
    ```
 
-   `updatedAt` indica cuándo se obtuvo la lista de Amazon. Tras 30 minutos sin datos
- nuevos se muestra un aviso. `completed` debe ser booleano. Máximo 300 artículos. La
- tablet muestra la lista en modo consulta; no envía cambios a Alexa.
+   `updatedAt`: fecha de lectura de Amazon; aviso tras 30 minutos sin datos nuevos.
+ `completed`: booleano. Máximo 300 artículos; consulta sin enviar cambios a Alexa.
 
    El lector usa:
 
@@ -231,16 +218,14 @@
  (`panel.guillers.es`), formato `application/json` y verificación TLS activada. No debe
  apuntar a la IP por el puerto 3000 cuando el acceso directo por IP está deshabilitado.
 
-   El callback incluye `forceRebuild=true` para descargar y construir la fuente en cada
- push, incluso si la consulta de commits de GitHub aún devuelve una referencia anterior
- por caché. Esta opción evita que EasyPanel omita la construcción y puede aumentar el
- tiempo de build.
+   `forceRebuild=true` fuerza la descarga y construcción en cada push, aunque la caché
+ de GitHub devuelva un commit anterior. Evita que EasyPanel omita la construcción,
+ pero puede aumentar su duración.
 
-   La URL completa del webhook contiene un token: mantenerla únicamente en la
- configuración de GitHub/EasyPanel, nunca en el repositorio ni en logs. Para
- diagnosticar fallos, comprobar el estado HTTP de las entregas de GitHub y la acción de
- despliegue correspondiente en EasyPanel; la opción de auto-deploy activada por sí sola
- no demuestra que el webhook funcione. El lector Alexa se despliega por separado.
+   La URL del webhook contiene un token: guardarla solo en GitHub/EasyPanel, nunca en
+ el repositorio ni en logs. Ante fallos, comprobar el estado HTTP de las entregas y el
+ despliegue en EasyPanel; activar auto-deploy no demuestra que el webhook funcione.
+ El lector Alexa se despliega por separado.
 
    ## Tablet
 
@@ -258,10 +243,9 @@
  recurrencias/EXDATE/overrides/cancelación/cambio horario, eventos completos/en curso,
  RSS/enlaces, validación del adaptador y protección de producción/API.
    - Revisión en navegador de la interfaz y vista de ejemplo.
-   - Peticiones reales desde el entorno de desarrollo: Open-Meteo respondió HTTP 200 con
- las variables solicitadas y el RSS respondió HTTP 200 con ocho titulares normalizados.
- El contenedor separado de vista previa no logró acceder a esas fuentes; la captura usa
- el modo de ejemplo. La comprobación integral desde EasyPanel queda pendiente.
+   - Desde desarrollo: Open-Meteo devolvió HTTP 200 con las variables solicitadas y RSS,
+ HTTP 200 con ocho titulares normalizados. El contenedor de vista previa no accedió a
+ esas fuentes; la captura usa datos de ejemplo. Verificación integral en EasyPanel pendiente.
    - Integración Alexa verificada desde Casa: HTTP 200, estado `ok` y cuatro artículos
  reales de Amazon España.
    - El adaptador Docker se construyó y se verificó sin puerto publicado; las
