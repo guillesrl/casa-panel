@@ -2,6 +2,8 @@
 
 Lector de solo lectura para la lista de compras de Alexa desde Ubuntu sin entorno gráfico.
 
+**Para instalar desde cero:** [Guía de Instalación · Casa + Alexa](../docs/guia-instalacion.md). Incluye los requisitos del host, login VNC, red privada, secreto compartido y permisos; los estados descritos abajo no implican que un servidor nuevo ya esté preparado.
+
 ## Seguridad
 
 - No guarda contraseñas ni códigos MFA.

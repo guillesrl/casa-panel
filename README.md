@@ -1,5 +1,7 @@
  # Casa · Panel para tablet
 
+**Instalación en otro servidor:** [Guía de Instalación · Casa + Alexa](docs/guia-instalacion.md) — despliegue completo, login VNC, persistencia y comprobaciones.
+
    Panel doméstico en español con cuatro tarjetas: tiempo, noticias, Google Calendar
  y compras de Alexa. HTML/CSS/JavaScript sin framework; servidor Node.js 24 con dos
  dependencias para RSS e iCalendar. Sin base de datos ni compilación.
