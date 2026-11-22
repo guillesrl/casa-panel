@@ -269,6 +269,8 @@
 
    El botón de reproducción junto a actualizar activa el carrusel: clima con agenda
  a partes iguales durante 12 segundos, y Alexa (30%) con noticias (70%) durante 20.
+ Los titulares del carrusel usan letra ampliada (24–34 px según el ancho de pantalla)
+ para facilitar la lectura a distancia; la tipografía de la vista normal no cambia.
  En pantallas estrechas las parejas se apilan: Alexa ocupa el 30% de la altura útil y
  noticias el 70%, mientras clima y agenda mantienen alturas iguales. Al detenerlo
  vuelve la distribución normal, sin cambios: cuatro cuadrantes iguales en tablet y

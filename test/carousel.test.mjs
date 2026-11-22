@@ -6,6 +6,15 @@ import vm from 'node:vm';
 const css=await readFile(new URL('../public/style.css',import.meta.url),'utf8');
 const newsPair='.grid.carousel-active:has(>.news-card:not([hidden]))';
 
+test('titulares del carrusel aumentan para lectura a distancia con interlineado legible',()=>{
+  assert.ok(css.includes('.grid.carousel-active .news-copy h3{font-size:clamp(24px,2.4vw,34px);line-height:1.3}'));
+});
+
+test('tipografía de noticias fuera del carrusel conserva su tamaño normal',()=>{
+  assert.ok(css.includes('.news-copy h3{font-size:17px}'));
+  assert.ok(css.includes('.news-copy h3{display:block;overflow:visible;-webkit-line-clamp:unset;font-size:clamp(13px,1.05vw,16px);line-height:1.25}'));
+});
+
 test('carrusel Alexa/noticias reparte las columnas 30/70 solo cuando noticias está visible',()=>{
   assert.ok(css.includes(`${newsPair}{grid-template-columns:minmax(0,3fr) minmax(0,7fr)}`));
 });
